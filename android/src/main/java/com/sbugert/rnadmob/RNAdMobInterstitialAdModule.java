@@ -1,8 +1,10 @@
 package com.sbugert.rnadmob;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -15,6 +17,7 @@ import com.facebook.react.bridge.ReadableNativeArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
@@ -35,6 +38,7 @@ public class RNAdMobInterstitialAdModule extends ReactContextBaseJavaModule {
 
     InterstitialAd mInterstitialAd;
     String[] testDevices;
+    Boolean npa;
 
     private Promise mRequestAdPromise;
 
@@ -45,6 +49,7 @@ public class RNAdMobInterstitialAdModule extends ReactContextBaseJavaModule {
 
     public RNAdMobInterstitialAdModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        this.npa = false;
         mInterstitialAd = new InterstitialAd(reactContext);
 
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -112,6 +117,11 @@ public class RNAdMobInterstitialAdModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void setNPA(Boolean npa) {
+        this.npa = npa;
+    }
+
+    @ReactMethod
     public void setTestDevices(ReadableArray testDevices) {
         ReadableNativeArray nativeArray = (ReadableNativeArray)testDevices;
         ArrayList<Object> list = nativeArray.toArrayList();
@@ -136,6 +146,12 @@ public class RNAdMobInterstitialAdModule extends ReactContextBaseJavaModule {
                             }
                             adRequestBuilder.addTestDevice(testDevice);
                         }
+                    }
+                    if (npa) {
+                        Log.d("RNAdMob", "Loading non personal interstitial");
+                        Bundle extras = new Bundle();
+                        extras.putString("npa", "1");
+                        adRequestBuilder.addNetworkExtrasBundle(AdMobAdapter.class, extras);
                     }
                     AdRequest adRequest = adRequestBuilder.build();
                     mInterstitialAd.loadAd(adRequest);
