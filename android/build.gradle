@@ -15,7 +15,14 @@ android {
         }
     }
 }
-
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.1.1'
+    }
+}
 dependencies {
     compile 'com.facebook.react:react-native:+'
     compile 'com.google.android.gms:play-services-ads:+'
